@@ -114,6 +114,35 @@ console.log(listState());
 console.log(returnedArray);
 
 
+function token(type,name,){
+	this.type = type;
+	this.name = name;
+	// this.line_number = line_number;
+}
+
+LBRACE = new token("Brace","Left Brace",);
+RBRACE = new token("Brace","Right Brace");
+LPAREN = new token("Paren","Left Paren");
+RPAREN = new token("Paren","Right Paren");
+PRINT = new token("Statement", "Print");
+WHILE = new token("Statement", "While");
+IF = new token("Statment", "If");
+BOOLEAN = new token("Type","Boolean");
+INT = new token("Type","Int");
+STRING = new token("Type","String");
+CHAR = new token("Character","");
+DIGIT = new token("Digit","");
+FALSE = new token("BoolOp","False");
+TRUE = new token("BoolOp","True");
+ASSIGN = new token("Operator","Assign");
+ISEQUAL = new token("Operator","isEqual");
+NOTEQUAL = new token("Operator","NotEqual");
+PLUS = new token("Operator","Plus");
+
+
+
+
+
 // function isSepertor(nextChar){
 // 	if (nextChar.charAt(currentPos) == " "){
 // 		return true;

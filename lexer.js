@@ -59,14 +59,10 @@ var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 
 
 var currentState = 0; // States that the begin state is 0
 var currentPos = 0; //CurrentPos will tell the position we're at when reading the string input
-var buffer = 'whil if'; //Buffer will take the string inputed.
+var inputText = ''; //Buffer will take the string inputed.
 var inString = false;
 
-// function runCode(){
-// 	buffer = $("#input").val();
-// }
-
-function findState(){
+function findState(buffer){
 	while(currentPos < buffer.length){
 		var currentChar = buffer.charAt(currentPos);
 		var nextChar = buffer.charAt(currentPos + 1);
@@ -76,7 +72,6 @@ function findState(){
 		if (symArray.includes(currentChar)){
 			var pointer = symArray.indexOf(currentChar);	
 		} else {
-			console.log(tokenStream);
 		   throw new Error("Invalid Input Receieved! Reached a character not in our language. Ending Program ");
 		}
 		currentState = lexArray[currentState][pointer];
@@ -107,7 +102,6 @@ function findState(){
 				tokenStream.push(new token(type, name, value));
 				currentState = 0;
 			} else {
-				console.log(tokenStream);
 				throw new Error("You entered a non- alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program!");
 			}
 		} currentChar = nextChar;
@@ -122,15 +116,16 @@ function seperateWords(){
 			createToken();
 		} else {
 			console.log(tokenStream);
-			throw new Error("Word entered is not part of our valid syntax! Ending Program!")
+			//throw new Error("Word entered is not part of our valid syntax! Ending Program!")
 		}
 	} currentState = 0;
 }
 
-function listState(){
-	var returnedState = findState();
+function listState(buffer){
+	var returnedState = findState(buffer);
 	if (acceptedState.includes(returnedState)){
 		createToken();
+		console.log(tokenStream);
 	} return tokenStream;
 }
 
@@ -144,7 +139,6 @@ function createToken(){
 	var type;
 	var name;
 	var value;
-	console.log(currentState);
 	switch (currentState){
 		case 1:
 			type = "ID";

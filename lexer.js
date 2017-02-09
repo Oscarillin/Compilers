@@ -36,7 +36,6 @@ var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,27 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
 			 	[29 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
-			 	[29 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,30 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,31 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
 			 	[-1 ,-1 ,-1 ,-1 ,32 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1],
@@ -60,7 +59,7 @@ var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 
 
 var currentState = 0; // States that the begin state is 0
 var currentPos = 0; //CurrentPos will tell the position we're at when reading the string input
-var buffer = 'print ()'; //Buffer will take the string inputed.
+var buffer = 'whil if'; //Buffer will take the string inputed.
 var inString = false;
 
 // function runCode(){
@@ -77,17 +76,17 @@ function findState(){
 		if (symArray.includes(currentChar)){
 			var pointer = symArray.indexOf(currentChar);	
 		} else {
-		   console.log("Invalid Input Received");
-		   return;
-		}	
+			console.log(tokenStream);
+		   throw new Error("Invalid Input Receieved! Reached a character not in our language. Ending Program ");
+		}
 		currentState = lexArray[currentState][pointer];
 		currentPos++;
-		if(currentChar != "!" && nextChar != "="){
+		if(currentChar != "!" && nextChar != "=" && !inString){
 			if(isSeperator.includes(nextChar)){
 				seperateWords();
 			}
 		}
-		if(currentChar != "=" && nextChar != "="){
+		if(currentChar != "=" && nextChar != "=" && !inString){
 			if(isSeperator.includes(currentChar)){
 		 		seperateWords();
 		 	}
@@ -108,21 +107,22 @@ function findState(){
 				tokenStream.push(new token(type, name, value));
 				currentState = 0;
 			} else {
-				console.log("Not Char");
+				console.log(tokenStream);
+				throw new Error("You entered a non- alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program!");
 			}
 		} currentChar = nextChar;
-		console.log(currentChar)
 	} return currentState;
 }
 
 function seperateWords(){
-	console.log(currentState);
 	if (currentState == -1){
-		console.log("Potato");
+		throw new Error("Reached an invalid state. You have entered a word that is not in our grammar!");
 	} else {
-		console.log(currentState)
 		if(acceptedState.includes(currentState)){
 			createToken();
+		} else {
+			console.log(tokenStream);
+			throw new Error("Word entered is not part of our valid syntax! Ending Program!")
 		}
 	} currentState = 0;
 }
@@ -133,7 +133,6 @@ function listState(){
 		createToken();
 	} return tokenStream;
 }
-console.log(listState());
 
 function token(type,name, value){
 	this.type = type;

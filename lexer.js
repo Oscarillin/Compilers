@@ -4,9 +4,9 @@
 
 var returnedArray = [];
 var tokenStream = [];
-var isSeperator = [" ","(",")","{","}","=","+","$"];
+var isSeperator = [" ","(",")","{","}","=","+","$","\n"];
 var acceptedState = [1,5,6,10,11,12,14,15,20,21,27,28,32,33,36,37,38,39,40,41,42,43,44,46,47,49]
-var symArray =  ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','(',')','{','}','=','+','!','"',"$"," "]
+var symArray =  ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','(',')','{','}','=','+','!','"',"$"," ","\n"]
 var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 ,37 ,37 ,15 ,33 ,37 ,37 , 6 ,37 ,37 ,37 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,38 ,39 ,40 ,41 ,42 ,46 , 45, 48, 49, 50],
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , 2 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1, -1],
 			 	[-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , 3 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 ,-1 , -1, -1, -1, -1],
@@ -63,11 +63,12 @@ var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 
 
 var currentState = 0; // States that the begin state is 0
 var currentPos = 0; //CurrentPos will tell the position we're at when reading the string input
-var buffer = 'print while'//Buffer will take the string inputed.
 var inString = false;
 var lexerProgram = 1;
+var lineNumber = 1;
 
-function findState(){
+function findState(buffer){
+	var buffer = buffer;
 	while(currentPos < buffer.length){
 		var currentChar = buffer.charAt(currentPos);
 		var nextChar = buffer.charAt(currentPos + 1);
@@ -77,25 +78,29 @@ function findState(){
 		if (symArray.includes(currentChar)){
 			var pointer = symArray.indexOf(currentChar);	
 		} else {
-		   throw new Error("Invalid Input Receieved! Reached a character not in our language. Ending Program ");
+		   $('#output').append("Invalid Input Receieved! Reached a character not in our language. Ending Program ");
+		   return;
 		}
+		console.log(pointer)
+		console.log(currentState)
 		currentState = lexArray[currentState][pointer];
+		console.log(currentState)
 		currentPos++;
-		if(currentChar != "!" && nextChar != "=" && !inString){
+		if(currentChar != "!" && nextChar != "="  && !inString){
 			if(isSeperator.includes(nextChar)){
-				seperateWords();
+				seperateWords(buffer, currentChar);
 			}
 		}
 		if(currentChar != "=" && nextChar != "=" && !inString){
 			if(isSeperator.includes(currentChar)){
-		 		seperateWords();
+		 		seperateWords(buffer, currentChar);
 		 	}
 		}
 		if(currentChar == '"'){
 			type = "Quote";
 			name = "Quote";
 			value = '"';
-			tokenStream.push(new token(type, name, value));
+			tokenStream.push(new token(type, name, value, lineNumber));
 			inString = !inString;
 			currentState = 0;
 		}
@@ -104,11 +109,13 @@ function findState(){
 				type = "Char";
 				name = "Character";
 				value = buffer.charAt(currentPos);
-				tokenStream.push(new token(type, name, value));
+				tokenStream.push(new token(type, name, value,lineNumber));
+				currentState = 0;
 			} else if(buffer.charCodeAt(currentPos) == 34){
 				//if statment so it doesnt throw an error when it sees a '"' but also doesnt do anything when it does
 			} else {
-				throw new Error("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program!");
+				$('#output').append("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program!");
+				return;
 			}
 		}
 		if (currentChar == "$"){
@@ -117,54 +124,65 @@ function findState(){
 	} return currentState;
 }
 
-function endProgram(){
+function endProgram(buffer){
 	if (buffer.charAt(buffer.length - 1) != "$"){
-		console.warn("You didn't end your program with $! Adding it so you can continue;");
+		$('#output').append("You didn't end your program with $! Adding it so you can continue;");
 		type = "EOP";
 		name = "EOP";
 		value = "EOP";
-		tokenStream.push(new token(type, name, value));
+		tokenStream.push(new token(type, name, value, lineNumber));
 	}
 }
 
-function seperateWords(){
+function reset(){
+	currentState = 0;
+	currentPos = 0;
+	tokenStream = [];
+
+}
+
+function seperateWords(buffer, currentChar){
 	if (currentState == -1){
-		throw new Error("Reached an invalid state. You have entered a word that is not in our grammar!");
+		$('#output').append("Reached an invalid state. You have entered a word that is not in our grammar!");
+		return;
 	} else {
 		if(acceptedState.includes(currentState)){
-			createToken();
-		} else if(currentState == 50){
-			//if statmemnt so it doesnt throw an error when it sees a space but also doesnt do anything with it
+			createToken(buffer);
+			console.log(tokenStream)
+		} else if(currentState == 50 || currentChar == "\n"){
+			if(currentChar == "\n"){
+				lineNumber++;
+			}
 		} else {
-			throw new Error("Word entered is not part of our valid syntax! Ending Program!")
+			$('#output').append("Word entered is not part of our valid syntax! Ending Program!");
+			return;
 		}
 	} currentState = 0;
 }
 
-function listState(){
-	var returnedState = findState();
+function listState(buffer){
+	reset();
+	var returnedState = findState(buffer);
 	if (acceptedState.includes(returnedState)){
-		createToken();
-	} endProgram();
-	  printStream();
+		createToken(buffer);
+		endProgram(buffer);
+	} printStream();
 }
-console.log(listState())
 
 function printStream(){
 	for (var i =0; i <tokenStream.length; i++){
-		console.log("Lexer Program: " + lexerProgram + " Lexer Token : {" + tokenStream[i].name + "}");
+		$('#output').append("Lexer Program: " + lexerProgram + " Lexer Token : {" + tokenStream[i].name + "} \n");
 	} 
-	tokenStream = [];
-	currentState = 0;
 }
 
-function token(type,name, value){
+function token(type,name, value, lineNum){
 	this.type = type;
 	this.name = name;
 	this.value = value;
+	this.lineNum = lineNum;
 }
 
-function createToken(){
+function createToken(buffer){
 	var type;
 	var name;
 	var value;
@@ -298,5 +316,5 @@ function createToken(){
 			name = "EOP";
 			value = "EOP";
 		}
-		tokenStream.push(new token (type, name, value));
+		tokenStream.push(new token (type, name, value, lineNumber));
 }

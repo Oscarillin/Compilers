@@ -4,7 +4,7 @@
 
 var returnedArray = [];
 var tokenStream = [];
-var isSeperator = [" ","(",")","{","}","=","+","$","\n"];
+var isSeperator = [" ","(",")","{","}","+","$","\n"];
 var acceptedState = [1,5,6,10,11,12,14,15,20,21,27,28,32,33,36,37,38,39,40,41,42,43,44,46,47,49]
 var symArray =  ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','(',')','{','}','=','+','!','"',"$"," ","\n"]
 var lexArray = [[37 ,21 ,37 ,37 ,37 ,28 ,37 ,37 ,11 ,37 ,37 ,37 ,37 ,37 ,37 , 1 ,37 ,37 ,15 ,33 ,37 ,37 , 6 ,37 ,37 ,37 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,43 ,38 ,39 ,40 ,41 ,42 ,46 , 45, 48, 49, 50],
@@ -78,24 +78,40 @@ function findState(buffer){
 		if (symArray.includes(currentChar)){
 			var pointer = symArray.indexOf(currentChar);	
 		} else {
-		   $('#output').append("Invalid Input Receieved! Reached a character not in our language. Ending Program ");
-		   return;
+		   $('#output').append("Invalid Input Receieved! Reached a character not in our language. Ending Program \n");
+		   break;
 		}
-		console.log(pointer)
-		console.log(currentState)
+
+		if(currentState != -1){
 		currentState = lexArray[currentState][pointer];
-		console.log(currentState)
 		currentPos++;
-		if(currentChar != "!" && nextChar != "="  && !inString){
-			if(isSeperator.includes(nextChar)){
+		} else {
+			$('#output').append("Stream of words is not an acceptable word in our language! Ending Program \n");
+			break;
+		}
+
+		if(nextChar == "!"){
+			if(buffer.charAt(currentPos + 1) == "="){
+				seperateWords(buffer,currentChar);
+			}
+		}
+
+		if(nextChar == "=" && currentChar != "="){
+			if(buffer.charAt(currentPos + 1) == "="){
+				seperateWords(buffer,currentChar);
+			} else {
 				seperateWords(buffer, currentChar);
 			}
 		}
-		if(currentChar != "=" && nextChar != "=" && !inString){
-			if(isSeperator.includes(currentChar)){
-		 		seperateWords(buffer, currentChar);
-		 	}
+
+		if(isSeperator.includes(nextChar)){
+			seperateWords(buffer, currentChar);
 		}
+
+		if(isSeperator.includes(currentChar) || currentChar == "=" && nextChar != "="){
+			seperateWords(buffer, currentChar);
+		}
+
 		if(currentChar == '"'){
 			type = "Quote";
 			name = "Quote";
@@ -114,19 +130,19 @@ function findState(buffer){
 			} else if(buffer.charCodeAt(currentPos) == 34){
 				//if statment so it doesnt throw an error when it sees a '"' but also doesnt do anything when it does
 			} else {
-				$('#output').append("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program!");
+				$('#output').append("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program! \n");
 				return;
 			}
 		}
 		if (currentChar == "$"){
 			lexerProgram ++;
-		} currentChar = nextChar;
+		} 		currentChar = nextChar;
 	} return currentState;
 }
 
 function endProgram(buffer){
 	if (buffer.charAt(buffer.length - 1) != "$"){
-		$('#output').append("You didn't end your program with $! Adding it so you can continue;");
+		$('#output').append("You didn't end your program with $! Adding it so you can continue \n");
 		type = "EOP";
 		name = "EOP";
 		value = "EOP";
@@ -138,23 +154,23 @@ function reset(){
 	currentState = 0;
 	currentPos = 0;
 	tokenStream = [];
+	inString = false;
 
 }
 
 function seperateWords(buffer, currentChar){
 	if (currentState == -1){
-		$('#output').append("Reached an invalid state. You have entered a word that is not in our grammar!");
+		//$('#output').append("Reached an invalid state. You have entered a word that is not in our grammar!");
 		return;
 	} else {
 		if(acceptedState.includes(currentState)){
 			createToken(buffer);
-			console.log(tokenStream)
-		} else if(currentState == 50 || currentChar == "\n"){
+		} else if(currentState == 50 || currentChar == "\n" ){
 			if(currentChar == "\n"){
 				lineNumber++;
 			}
 		} else {
-			$('#output').append("Word entered is not part of our valid syntax! Ending Program!");
+			//$('#output').append("Word entered is not part of our valid syntax! Ending Program!");
 			return;
 		}
 	} currentState = 0;
@@ -311,10 +327,12 @@ function createToken(buffer){
 			type = "IntOp";
 			name = "Plus";
 			value = "+";
+			break;
 		case 49:
 			type = "EOP";
 			name = "EOP";
 			value = "EOP";
+			break;
 		}
 		tokenStream.push(new token (type, name, value, lineNumber));
 }

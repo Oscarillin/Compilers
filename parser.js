@@ -2,22 +2,33 @@
 //Parser
 
 var currentIndex = 0;
-var tokenList
-var nextToken;
+var tokenList;
+
+function nextToken(){
+	return tokenList[currentIndex].kind;
+}
+
+function match(expected){
+	if (expected == nextToken()){
+		currentIndex++;
+	} else {
+		throw "Unexpected Token: " + tokenList[currentIndex].kind + " Expected: " + expected + "\n";
+	}
+}
 
 function parseProgram(){
 	parseBlock();
-	//match "EOP"
+	match("EOP");
 }
 
 function parseBlock(){
-	//match LBRACE
+	match("LBRACE");
 	parseStatementList();
-	//match RBRACE
+	match("RBRACE");
 }
 
 function parseStatementList(){
-	if(nextToken != "RBRACE"){
+	if(nextToken() != "RBRACE"){
 		parseStatement();
 		parseStatementList();
 	} else {
@@ -26,17 +37,17 @@ function parseStatementList(){
 }
 
 function parseStatement(){
-	if(nextToken == "Print"){
+	if(nextToken() == "Print"){
 		parsePrint();
-	} else if (nextToken == "Char"){
+	} else if (nextToken() == "Char"){
 		parseAssign();
-	} else if (nextToken == "Type"){
+	} else if (nextToken() == "Type"){
 		parseVarDecl();
-	} else if (nextToken == "While"){
+	} else if (nextToken() == "While"){
 		parseWhile();
-	} else if (nextToken == "If"){
+	} else if (nextToken() == "If"){
 		parseIf();
-	} else if (nextToken == "LBRACE"){
+	} else if (nextToken() == "LBRACE"){
 		parseBlock();
 	} else {
 		//error
@@ -44,42 +55,42 @@ function parseStatement(){
 }
 
 function parsePrint(){
-	//match Print
-	//match LPAREN
+	match("Print");
+	match("LPAREN");
 	parseExpr();
-	//match RPAREN
+	match("RPAREN");
 }
 
 function parseAssign(){
 	parseId();
-	//match Assign
+	match("Assign");
 	parseExpr();
 
 function parseVarDecl(){
-	//match Type
+	match("Type");
 	parseId();
 }
 
 function parseWhile(){
-	//match While
+	match("While");
 	parseBooleanExpr();
 	parseBlock();
 }
 
 function parseIf(){
-	//match If
+	match("If");
 	parseBooleanExpr();
 	parseBlock();
 }
 
 function parseExpr(){
-	if(nextToken == "Digit"){
+	if(nextToken() == "Digit"){
 		parseIntExpr();
-	} else if(nextToken == "Quote"){
+	} else if(nextToken() == "Quote"){
 		parseStringExpr();
-	} else if(nextToken == "LPAREN"){
+	} else if(nextToken() == "LPAREN"){
 		parseBooleanExpr();
-	} else if(nextToken == "Char"){
+	} else if(nextToken() == "Char"){
 		parseId();
 	} else {
 		//error
@@ -87,40 +98,40 @@ function parseExpr(){
 }
 
 function parseIntExpr(){
-	//match Digit
-	if(nextToken == "IntOp"){
-		//match IntOp
+	match("Digit");
+	if(nextToken() == "IntOp"){
+		match("IntOp");
 		parseExpr();
 	}
 }
 
 function parseStringExpr(){
-	//match Quote
+	match("Quote");
 	parseCharList();
-	//match Quote
+	match("Quote");
 }
 
 function parseBooleanExpr(){
-	if(nextToken == "LPAREN"){
-		//match LPAREN
+	if(nextToken() == "LPAREN"){
+		match("LPAREN");
 		parseExpr();
-		//match BoolOp
+		match("BoolOp");
 		parseExpr();
-		//match RPAREN
-	} else if(nextToken == "BoolVal"){
-		//match BoolVal
+		match("RPAREN");
+	} else if(nextToken() == "BoolVal"){
+		match("BoolVal");
 	} else {
 		//error
 	}
 }
 
 function parseId(){
-	//match Char
+	match("Char");
 }
 
 function parseCharList(){
-	if(nextToken != "Quote"){
-		//match Char
+	if(nextToken() != "Quote"){
+		match("Char");
 		parseCharList();
 	} else {
 		//Epsilon Production

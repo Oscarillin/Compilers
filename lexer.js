@@ -72,13 +72,12 @@ function findState(buffer){
 	while(currentPos < buffer.length){
 		var currentChar = buffer.charAt(currentPos);
 		var nextChar = buffer.charAt(currentPos + 1);
-		var type;
-		var name;
+		var kind;
 		var value;
 		if (symArray.includes(currentChar)){
 			var pointer = symArray.indexOf(currentChar);	
 		} else {
-		   $('#output').append("Invalid Input Receieved! Reached a character not in our language. Ending Program \n");
+		   $('#lexOutput').append("Invalid Input Receieved! Reached a character not in our language. Ending Program \n");
 		   break;
 		}
 
@@ -86,7 +85,7 @@ function findState(buffer){
 		currentState = lexArray[currentState][pointer];
 		currentPos++;
 		} else {
-			$('#output').append("Stream of words is not an acceptable word in our language! Ending Program \n");
+			$('#lexOutput').append("Stream of words is not an acceptable word in our language! Ending Program \n");
 			break;
 		}
 
@@ -113,49 +112,43 @@ function findState(buffer){
 		}
 
 		if(currentChar == '"'){
-			type = "Quote";
-			name = "Quote";
+			kind = "Quote";
 			value = '"';
-			tokenStream.push(new token(type, name, value, lineNumber));
+			tokenStream.push(new token(kind, value, lineNumber));
 			inString = !inString;
 			currentState = 0;
 		}
 		if(inString){
 			if(buffer.charCodeAt(currentPos) >= 97 && buffer.charCodeAt(currentPos) <= 122 || buffer.charCodeAt(currentPos) == 32){
-				type = "Char";
-				name = "Character";
+				kind = "Char";
 				value = buffer.charAt(currentPos);
-				tokenStream.push(new token(type, name, value,lineNumber));
+				tokenStream.push(new token(kind, value,lineNumber));
 				currentState = 0;
 			} else if(buffer.charCodeAt(currentPos) == 34){
 				//if statment so it doesnt throw an error when it sees a '"' but also doesnt do anything when it does
 			} else {
-				$('#output').append("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program! \n");
+				$('#lexOutput').append("You entered a non-alphabetic character into a string. You can only enter alphabet characters or a space! Ending Program! \n");
 				return;
 			}
-		}
-		if (currentChar == "$"){
-			lexerProgram ++;
-		} 		currentChar = nextChar;
+		} currentChar = nextChar;
 	} return currentState;
 }
 
-function endProgram(buffer){
-	if (buffer.charAt(buffer.length - 1) != "$"){
-		$('#output').append("You didn't end your program with $! Adding it so you can continue \n");
-		type = "EOP";
-		name = "EOP";
+function endProgram(){
+	if (tokenStream[tokenStream.length - 1].kind != "EOP"){
+		$('#lexOutput').append("You didn't end your program with $! Adding it so you can continue \n");
+		kind = "EOP";
 		value = "EOP";
-		tokenStream.push(new token(type, name, value, lineNumber));
+		tokenStream.push(new token(kind, value, lineNumber));
 	}
 }
 
 function reset(){
 	currentState = 0;
 	currentPos = 0;
+	lexerProgram = 1;
 	tokenStream = [];
 	inString = false;
-
 }
 
 function seperateWords(buffer, currentChar){
@@ -181,158 +174,135 @@ function listState(buffer){
 	var returnedState = findState(buffer);
 	if (acceptedState.includes(returnedState)){
 		createToken(buffer);
-		endProgram(buffer);
-	} printStream();
+	} 
+	endProgram();
+	printStream();
+	 return tokenStream;
 }
 
 function printStream(){
 	for (var i =0; i <tokenStream.length; i++){
-		$('#output').append("Lexer Program: " + lexerProgram + " Lexer Token : {" + tokenStream[i].name + "} \n");
+		$('#lexOutput').append("Lexer Program: " + lexerProgram + " Lexer Token : {" + tokenStream[i].kind + "} \n");
+		if(tokenStream[i].kind == "EOP"){
+			lexerProgram++;
+		}
 	} 
 }
 
-function token(type,name, value, lineNum){
-	this.type = type;
-	this.name = name;
+function token(kind, value, lineNum){
+	this.kind = kind;
 	this.value = value;
 	this.lineNum = lineNum;
 }
 
 function createToken(buffer){
-	var type;
-	var name;
+	var kind;
 	var value;
 	switch (currentState){
 		case 1:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 5:
-			type = "Statement";
-			name = "Print";
+			kind = "Print";
 			value = "Print"
 			break;
 		case 6:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 10:
-			type = "Statement";
-			name = "While";
+			kind = "While";
 			value = "While";
 			break;
 		case 11:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 12:
-			type = "Statement";
-			name = "If";
+			kind = "If";
 			value = "If";
 			break;
 		case 14:
-			type = "Type";
-			name = "Int";
+			kind = "Type";
 			value = "Int";
 			break;
 		case 15:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;	
 		case 20:
-			type = "Type";
-			name = "String";
+			kind = "Type";
 			value = "String";
 			break;
 		case 21:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);	
 			break;
 		case 27:
-			type = "Type";
-			name = "Boolean";
+			kind = "Type";
 			value = "Boolean";
 			break;
 		case 28:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 32:
-			type = "BoolVal";
-			name = "False";
+			kind = "BoolVal";
 			value = "False";
 			break;
 		case 33:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 36:
-			type = "BoolVal";
-			name = "True";
+			kind = "BoolVal";
 			value = "True";
 			break;
 		case 37:
-			type = "ID";
-			name = "Identifier";
+			kind = "Char";
 			value = buffer.charAt(currentPos);
 			break;
 		case 38:
-			type = "Paren";
-			name = "LPAREN";
+			kind = "LPAREN";
 			value = "(";
 			break;
 		case 39:
-			type = "Paren";
-			name = "RPAREN";
+			kind = "RPAREN";
 			value = ")";
 			break;
 		case 40:
-			type = "Brace";
-			name = "LBRACE";
+			kind = "LBRACE";
 			value = "{";
 			break;
 		case 41:
-			type = "Brace";
-			name = "RBRACE";
+			kind = "RBRACE";
 			value = "}";
 			break;
 		case 42:
-			type = "Statement";
-			name = "Assign";
+			kind = "Assign";
 			value = "=";
 			break;
 		case 43:
-			type = "Digit";
-			name = "Number";
+			kind = "Digit";
 			value = buffer.charAt(currentPos);
 			break;
 		case 44:
-			type = "BoolOp";
-			name = "isEqual";
+			kind = "BoolOp";
 			value = "==";
 			break;
 		case 47:
-			type = "BoolOp";
-			name = "notEqual";
+			kind = "BoolOp";
 			value = "!=";
 			break;
 		case 46:
-			type = "IntOp";
-			name = "Plus";
+			kind = "IntOp";
 			value = "+";
 			break;
 		case 49:
-			type = "EOP";
-			name = "EOP";
+			kind = "EOP";
 			value = "EOP";
 			break;
 		}
-		tokenStream.push(new token (type, name, value, lineNumber));
+		tokenStream.push(new token (kind, value, lineNumber));
 }

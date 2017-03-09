@@ -159,9 +159,7 @@ function seperateWords(buffer, currentChar){
 		if(acceptedState.includes(currentState)){
 			createToken(buffer);
 		} else if(currentState == 50 || currentChar == "\n" ){
-			if(currentChar == "\n"){
-				lineNumber++;
-			}
+			//Do nothing
 		} else {
 			//$('#output').append("Word entered is not part of our valid syntax! Ending Program!");
 			return;
@@ -196,113 +194,143 @@ function token(kind, value, lineNum){
 }
 
 function createToken(buffer){
+	if(buffer.charAt(currentPos) == "\n"){
+		lineNumber++;
+	}
 	var kind;
 	var value;
+	var lineNum;
 	switch (currentState){
 		case 1:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 5:
 			kind = "Print";
-			value = "Print"
+			value = "Print";
+			lineNum = lineNumber;
 			break;
 		case 6:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 10:
 			kind = "While";
 			value = "While";
+			lineNum = lineNumber;
 			break;
 		case 11:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 12:
 			kind = "If";
 			value = "If";
+			lineNum = lineNumber;
 			break;
 		case 14:
 			kind = "Type";
 			value = "Int";
+			lineNum = lineNumber;
 			break;
 		case 15:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;	
 		case 20:
 			kind = "Type";
 			value = "String";
+			lineNum = lineNumber;
 			break;
 		case 21:
 			kind = "Char";
-			value = buffer.charAt(currentPos);	
+			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;	
 			break;
 		case 27:
 			kind = "Type";
 			value = "Boolean";
+			lineNum = lineNumber;
 			break;
 		case 28:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 32:
 			kind = "BoolVal";
 			value = "False";
+			lineNum = lineNumber;
 			break;
 		case 33:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 36:
 			kind = "BoolVal";
 			value = "True";
+			lineNum = lineNumber;
 			break;
 		case 37:
 			kind = "Char";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 38:
 			kind = "LPAREN";
 			value = "(";
+			lineNum = lineNumber;
 			break;
 		case 39:
 			kind = "RPAREN";
 			value = ")";
+			lineNum = lineNumber;
 			break;
 		case 40:
 			kind = "LBRACE";
 			value = "{";
+			lineNum = lineNumber;
 			break;
 		case 41:
 			kind = "RBRACE";
 			value = "}";
+			lineNum = lineNumber;
 			break;
 		case 42:
 			kind = "Assign";
 			value = "=";
+			lineNum = lineNumber;
 			break;
 		case 43:
 			kind = "Digit";
 			value = buffer.charAt(currentPos);
+			lineNum = lineNumber;
 			break;
 		case 44:
 			kind = "BoolOp";
 			value = "==";
+			lineNum = lineNumber;
 			break;
 		case 47:
 			kind = "BoolOp";
 			value = "!=";
+			lineNum = lineNumber;
 			break;
 		case 46:
 			kind = "IntOp";
 			value = "+";
+			lineNum = lineNumber;
 			break;
 		case 49:
 			kind = "EOP";
 			value = "EOP";
+			lineNum = lineNumber;
 			break;
 		}
-		tokenStream.push(new token (kind, value, lineNumber));
+		tokenStream.push(new token (kind, value, lineNum));
 }

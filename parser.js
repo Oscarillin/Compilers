@@ -18,7 +18,6 @@ function run(input){
 	if(currentIndex < tokenList.length - 1){
 		run(input);
 	}
-	document.getElementById("parseOutput").append(cst.toString());
 	currentIndex = 0;	
 	}
 
@@ -32,7 +31,7 @@ function match(expected){
 		currentIndex++;
 		cst.addNode(expected, "leaf");
 	} else {
-		throw "Unexpected Token: " + tokenList[currentIndex].kind + " Expected: " + expected + "\n";
+		throw "Unexpected Token: " + tokenList[currentIndex].kind + " at Line: " + tokenList[currentIndex].lineNum + " Expected: " + expected + "\n";
 	}
 }
 
@@ -40,6 +39,7 @@ function parseProgram(){
 	cst.addNode("Program", "branch");
 	parseBlock();
 	match("EOP");
+	document.getElementById("parseOutput").append(cst.toString());
 }
 
 function parseBlock(){
@@ -76,7 +76,7 @@ function parseStatement(){
 	} else if (nextToken() == "LBRACE"){
 		parseBlock();
 	} else {
-		throw "Unexpected Token: " + tokenList[currentIndex].kind + " Expecting print, a character, a variable declaration, while, if, or '{' \n";
+		throw "Unexpected Token: " + tokenList[currentIndex].kind + " at Line: " + tokenList[currentIndex].lineNum + " Expecting print, a character, a variable declaration, while, if, or '{' \n";
 	}
 	cst.endChildren();
 }
@@ -132,7 +132,7 @@ function parseExpr(){
 	} else if(nextToken() == "Char"){
 		parseId();
 	} else {
-		throw "Unexpected Token: " + tokenList[currentIndex].kind + "Expecting a type declaration (Int, String, or Boolean) or a character \n";
+		throw "Unexpected Token: " + tokenList[currentIndex].kind + " at Line: " + tokenList[currentIndex].lineNum + "Expecting a type declaration (Int, String, or Boolean) or a character \n";
 	}
 	cst.endChildren();
 }
@@ -165,7 +165,7 @@ function parseBooleanExpr(){
 	} else if(nextToken() == "BoolVal"){
 		match("BoolVal");
 	} else {
-		throw "Unexpected Token: " + tokenList[currentIndex].kind + " Expecting '(', true, or false \n";
+		throw "Unexpected Token: " + tokenList[currentIndex].kind + " at Line: " + tokenList[currentIndex].lineNum + " Expecting '(', true, or false \n";
 	}
 	cst.endChildren();
 }

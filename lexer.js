@@ -203,7 +203,7 @@ function createToken(buffer){
 	switch (currentState){
 		case 1:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 5:
@@ -213,7 +213,7 @@ function createToken(buffer){
 			break;
 		case 6:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 10:
@@ -223,7 +223,7 @@ function createToken(buffer){
 			break;
 		case 11:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 12:
@@ -238,7 +238,7 @@ function createToken(buffer){
 			break;
 		case 15:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;	
 		case 20:
@@ -248,7 +248,7 @@ function createToken(buffer){
 			break;
 		case 21:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;	
 			break;
 		case 27:
@@ -258,7 +258,7 @@ function createToken(buffer){
 			break;
 		case 28:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 32:
@@ -268,7 +268,7 @@ function createToken(buffer){
 			break;
 		case 33:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 36:
@@ -278,32 +278,32 @@ function createToken(buffer){
 			break;
 		case 37:
 			kind = "Char";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 38:
 			kind = "LPAREN";
-			value = "(";
+			value = "LPAREN";
 			lineNum = lineNumber;
 			break;
 		case 39:
 			kind = "RPAREN";
-			value = ")";
+			value = "RPAREN";
 			lineNum = lineNumber;
 			break;
 		case 40:
 			kind = "LBRACE";
-			value = "{";
+			value = "LBRACE";
 			lineNum = lineNumber;
 			break;
 		case 41:
 			kind = "RBRACE";
-			value = "}";
+			value = "RBRACE";
 			lineNum = lineNumber;
 			break;
 		case 42:
 			kind = "Assign";
-			value = "=";
+			value = "ASSIGN";
 			lineNum = lineNumber;
 			break;
 		case 43:
@@ -313,17 +313,17 @@ function createToken(buffer){
 			break;
 		case 44:
 			kind = "BoolOp";
-			value = "==";
+			value = "IsEqual";
 			lineNum = lineNumber;
 			break;
 		case 47:
 			kind = "BoolOp";
-			value = "!=";
+			value = "NotEqual";
 			lineNum = lineNumber;
 			break;
 		case 46:
 			kind = "IntOp";
-			value = "+";
+			value = "PLUS";
 			lineNum = lineNumber;
 			break;
 		case 49:

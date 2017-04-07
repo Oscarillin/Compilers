@@ -5,19 +5,28 @@ var currentIndex = 0;
 var tokenList;
 var cst;
 
-function run(input){
+function runCompiler(input){
 	$('#parseOutput').text("");
+	$('#lexOutput').text("");
+	run(input);
+}
+
+function run(input){
 	if(currentIndex == 0){
 		tokenList = listState(input);
 	}
 	cst = new Tree();
-		try { parseProgram() }
+		try { 
+			parseProgram();
+			console.log(currentIndex)
+			if(currentIndex < tokenList.length - 1){
+				run(input);
+			} 
+		}
 		catch (e){
 			$('#parseOutput').append(e);
 		}
-	if(currentIndex < tokenList.length - 1){
-		run(input);
-	}
+
 	currentIndex = 0;	
 	}
 
@@ -28,8 +37,10 @@ function nextToken(){
 
 function match(expected){
 	if (expected == nextToken()){
+		 $('#parseOutput').append("Parse of " + tokenList[currentIndex].kind + " Successful! \n");
+		 console.log(tokenList[currentIndex].value)
+		 cst.addNode(tokenList[currentIndex].value, "leaf");
 		currentIndex++;
-		cst.addNode(expected, "leaf");
 	} else {
 		throw "Unexpected Token: " + tokenList[currentIndex].kind + " at Line: " + tokenList[currentIndex].lineNum + " Expected: " + expected + "\n";
 	}
@@ -127,7 +138,7 @@ function parseExpr(){
 		parseIntExpr();
 	} else if(nextToken() == "Quote"){
 		parseStringExpr();
-	} else if(nextToken() == "LPAREN"){
+	} else if(nextToken() == "LPAREN" || nextToken() == "BoolVal"){
 		parseBooleanExpr();
 	} else if(nextToken() == "Char"){
 		parseId();

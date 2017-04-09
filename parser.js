@@ -32,13 +32,11 @@ function run(input){
 
 function nextToken(){
 	return tokenList[currentIndex].kind;
-	console.log(tokenList[currentIndex].kind);
 }
 
 function match(expected){
 	if (expected == nextToken()){
 		 $('#parseOutput').append("Parse of " + tokenList[currentIndex].kind + " Successful! \n");
-		 console.log(tokenList[currentIndex].value)
 		 cst.addNode(tokenList[currentIndex].value, "leaf");
 		currentIndex++;
 	} else {

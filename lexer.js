@@ -308,7 +308,7 @@ function createToken(buffer){
 			break;
 		case 43:
 			kind = "Digit";
-			value = buffer.charAt(currentPos);
+			value = buffer.charAt(currentPos - 1);
 			lineNum = lineNumber;
 			break;
 		case 44:

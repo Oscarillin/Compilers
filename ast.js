@@ -28,8 +28,18 @@ function runAst(input){
 		astTokenList = listState(input);
 	}
 	ast = new Tree();
-	parseASTProgram();
-	astCurrentIndex = 0;
+		try { 
+			parseASTProgram();
+		}
+		catch (e){
+			$('#astOutput').append(e);
+		}	
+	console.log(astCurrentIndex)
+	console.log(astTokenList.length)
+	// if(astCurrentIndex < astTokenList.length - 1){
+	// 	runAst(input);
+	// } 
+	//astCurrentIndex = 0;
 }
 
 function astNextToken(){
@@ -43,6 +53,7 @@ function astMatch(expected){
 
 function parseASTProgram(){
 	parseASTBlock();
+	astCurrentIndex++;
 	document.getElementById("astOutput").append(ast.toString());
 }
 
@@ -55,7 +66,6 @@ function parseASTBlock(){
 }
 
 function parseASTStatementList(){
-	console.log(astNextToken())
 	if(astNextToken() != "RBRACE"){
 		parseASTStatement();
 		parseASTStatementList();
@@ -133,9 +143,12 @@ function parseASTExpr(){
 }
 
 function parseASTIntExpr(){
-	astMatch("Digit");
+	astCurrentIndex++;// astMatch("Digit");
 	if(astNextToken() == "IntOp"){
-		astMatch("IntOp");
+		ast.addNode(astTokenList[astCurrentIndex].value, "branch");
+		console.log(ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf"))
+		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf")
+		astCurrentIndex++; //astMatch("IntOp");
 		parseASTExpr();
 	}
 }
@@ -148,7 +161,7 @@ function parseASTStringExpr(){
 
 function parseASTBooleanExpr(){
 	if(astNextToken() == "LPAREN"){
-		ast.addNode("BoolOp", "branch")
+		ast.addNode(astTokenList[astCurrentIndex + 2].value, "branch")
 		astCurrentIndex++; //astMatch("LPAREN");
 		parseASTExpr();
 		astCurrentIndex++; //astMatch("BoolOp");

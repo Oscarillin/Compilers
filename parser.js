@@ -18,17 +18,18 @@ function run(input){
 	cst = new Tree();
 		try { 
 			parseProgram();
-			console.log(currentIndex)
 			if(currentIndex < tokenList.length - 1){
 				run(input);
 			} 
+			
+			runAst(input);
 		}
 		catch (e){
 			$('#parseOutput').append(e);
 		}
 
 	currentIndex = 0;	
-	}
+}
 
 function nextToken(){
 	return tokenList[currentIndex].kind;

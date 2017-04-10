@@ -27,7 +27,6 @@ function runAst(input){
 	if(astCurrentIndex == 0){
 		astTokenList = listState(input);
 	}
-	runCompiler(input);
 	ast = new Tree();
 	parseASTProgram();
 	astCurrentIndex = 0;
@@ -37,8 +36,8 @@ function astNextToken(){
 	return astTokenList[astCurrentIndex].kind;
 }
 
-function match(expected){
-		 ast.addNode(astTokenList[astCurrentIndex].value, "leaf");
+function astMatch(expected){
+		ast.addNode(astTokenList[astCurrentIndex].value, "leaf");
 		astCurrentIndex++;
 }
 
@@ -49,9 +48,9 @@ function parseASTProgram(){
 
 function parseASTBlock(){
 	ast.addNode("Block", "branch")
-	astCurrentIndex++; //match("LBRACE");
+	astCurrentIndex++; //astMatch("LBRACE");
 	parseASTStatementList();
-	astCurrentIndex++; //match("RBRACE");
+	astCurrentIndex++; //astMatch("RBRACE");
 	ast.endChildren();
 }
 
@@ -85,29 +84,29 @@ function parseASTStatement(){
 
 function parseASTPrint(){
 	ast.addNode("Print", "branch");
-	astCurrentIndex++; //match("Print");
-	astCurrentIndex++; //match("LPAREN");
+	astCurrentIndex++; //astMatch("Print");
+	astCurrentIndex++; //astMatch("LPAREN");
 	parseASTExpr();
-	astCurrentIndex++; //match("RPAREN");
+	astCurrentIndex++; //astMatch("RPAREN");
 	ast.endChildren();
 }
 
 function parseASTAssign(){
 	ast.addNode("Assign", "branch");
 	parseASTId();
-	astCurrentIndex++; //match("Assign");
+	astCurrentIndex++; //astMatch("Assign");
 	parseASTExpr();
 }
 
 function parseASTVarDecl(){
 	ast.addNode("VarDecl", "branch");
-	match("Type");
+	astMatch("Type");
 	parseASTId();
 }
 
 function parseASTWhile(){
 	ast.addNode("While", "branch");
-	astCurrentIndex++; //match("While");
+	astCurrentIndex++; //astMatch("While");
 	parseASTBooleanExpr();
 	parseASTBlock();
 	ast.endChildren();
@@ -115,7 +114,7 @@ function parseASTWhile(){
 
 function parseASTIf(){
 	ast.addNode("If", "branch");
-	astCurrentIndex++; //match("If");
+	astCurrentIndex++; //astMatch("If");
 	parseASTBooleanExpr();
 	parseASTBlock();
 	ast.endChildren();
@@ -134,40 +133,40 @@ function parseASTExpr(){
 }
 
 function parseASTIntExpr(){
-	match("Digit");
+	astMatch("Digit");
 	if(astNextToken() == "IntOp"){
-		match("IntOp");
+		astMatch("IntOp");
 		parseASTExpr();
 	}
 }
 
 function parseASTStringExpr(){
-	astCurrentIndex++; //match("Quote");
+	astCurrentIndex++; //astMatch("Quote");
 	parseASTCharList();
-	astCurrentIndex++; //match("Quote");
+	astCurrentIndex++; //astMatch("Quote");
 }
 
 function parseASTBooleanExpr(){
 	if(astNextToken() == "LPAREN"){
 		ast.addNode("BoolOp", "branch")
-		astCurrentIndex++; //match("LPAREN");
+		astCurrentIndex++; //astMatch("LPAREN");
 		parseASTExpr();
-		astCurrentIndex++; //match("BoolOp");
+		astCurrentIndex++; //astMatch("BoolOp");
 		parseASTExpr();
-		astCurrentIndex++; //match("RPAREN");
+		astCurrentIndex++; //astMatch("RPAREN");
 	} else if(astNextToken() == "BoolVal"){
-		match("BoolVal");
+		astMatch("BoolVal");
 	}
 	ast.endChildren();
 }
 
 function parseASTId(){
-	match("Char");
+	astMatch("Char");
 }
 
 function parseASTCharList(){
 	if(astNextToken() != "Quote"){
-		match("Char");
+		astMatch("Char");
 		parseASTCharList();
 		ast.endChildren();
 	} else {

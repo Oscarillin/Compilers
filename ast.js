@@ -23,19 +23,23 @@ var astCurrentIndex = 0;
 var astTokenList;
 var ast;
 
+var currentScope;
+var scopeCount = -1;
+var sa;
+
 function runAst(input){
 	if(astCurrentIndex == 0){
 		astTokenList = listState(input);
 	}
 	ast = new Tree();
+	sa = new symbolTree();
 		try { 
 			parseASTProgram();
+			console.log(sa)
 		}
 		catch (e){
 			$('#astOutput').append(e);
 		}	
-	console.log(astCurrentIndex)
-	console.log(astTokenList.length)
 	// if(astCurrentIndex < astTokenList.length - 1){
 	// 	runAst(input);
 	// } 
@@ -55,10 +59,14 @@ function parseASTProgram(){
 	parseASTBlock();
 	astCurrentIndex++;
 	document.getElementById("astOutput").append(ast.toString());
+	document.getElementById("semanticOutput").append(sa.toString());
 }
 
 function parseASTBlock(){
+	scopeCount++;
 	ast.addNode("Block", "branch")
+	sa.newScope("Scope " + scopeCount);
+	currentScope = "Scope " + scopeCount;
 	astCurrentIndex++; //astMatch("LBRACE");
 	parseASTStatementList();
 	astCurrentIndex++; //astMatch("RBRACE");
@@ -110,6 +118,7 @@ function parseASTAssign(){
 
 function parseASTVarDecl(){
 	ast.addNode("VarDecl", "branch");
+	sa.cur.ht.setItem(astTokenList[astCurrentIndex + 1].value,astTokenList[astCurrentIndex].value)
 	astMatch("Type");
 	parseASTId();
 }

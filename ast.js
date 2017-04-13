@@ -39,32 +39,29 @@ function runAst(tokenStream){
 		catch (e){
 			$('#astOutput').append(e);
 		}	
-	// if(astCurrentIndex < astTokenList.length - 1){
-	// 	runAst(input);
-	// } 
-	//astCurrentIndex = 0;
+	astCurrentIndex = 0;
 }
 
 function checkType(){
-	console.log(astTokenList[astCurrentIndex].kind)
-	console.log(astTokenList[astCurrentIndex - 2].kind)
-	if((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Int") || (astTokenList[astCurrentIndex].kind == "Digit")){
+	var currentType = astTokenList[astCurrentIndex].kind
+	var currentIDType = sa.cur.ht.getItem(astTokenList[astCurrentIndex].value);
+	if((currentIDType == "Int") || (currentType == "Digit")){
 		if((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Int") || (astTokenList[astCurrentIndex - 2].kind == "Digit")){
-			console.log("Int Compar Okay")
+			document.getElementById("semanticOutput").append("Int Type Match Successful \n")
 		} else {
-			console.log("Not valid")
+			throw "Type Mismatch at line:"
 		}
-	} else if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Boolean") || (astTokenList[astCurrentIndex].kind == "BoolVal")){
+	} else if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
 		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Boolean") || (astTokenList[astCurrentIndex - 2].kind == "BoolVal")){
-			console.log("Bool Comp Okay")
+			document.getElementById("semanticOutput").append("Bool Type Match Successful \n")
 		} else {
-			console.log("Not valid")
+			throw "Type Mismatch at line:"
 		}
-	} else if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "String") || (astTokenList[astCurrentIndex].kind == "Quote")){
+	} else if ((currentIDType == "String") || (currentType == "Quote")){
 		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "String") || (astTokenList[astCurrentIndex - 2].kind == "Quote")){
-			console.log("Okay")
+			document.getElementById("semanticOutput").append("String Type Match Successful \n")
 		} else {
-			console.log("Not okay")
+			throw "Type Mismatch at line:"
 		}
 	}
 }
@@ -89,7 +86,7 @@ function parseASTBlock(){
 	scopeCount++;
 	ast.addNode("Block", "branch")
 	sa.newScope("Scope " + scopeCount);
-	currentScope = "Scope " + scopeCount;
+	document.getElementById("semanticOutput").append("Entering Scope: " + scopeCount + "\n")
 	astCurrentIndex++; //astMatch("LBRACE");
 	parseASTStatementList();
 	astCurrentIndex++; //astMatch("RBRACE");
@@ -137,8 +134,6 @@ function parseASTAssign(){
 	ast.addNode("Assign", "branch");
 	parseASTId();
 	astCurrentIndex++; //astMatch("Assign");
-	// console.log(astNextToken())
-	// console.log(sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value))
 	parseASTExpr();
 }
 
@@ -146,8 +141,9 @@ function parseASTVarDecl(){
 	ast.addNode("VarDecl", "branch");
 	if(!sa.cur.ht.hasItem(astTokenList[astCurrentIndex + 1].value)){
 		sa.cur.ht.setItem(astTokenList[astCurrentIndex + 1].value,astTokenList[astCurrentIndex].value);
+		document.getElementById("semanticOutput").append("Declaring Identifier: (" + astTokenList[astCurrentIndex + 1].value + ") Of type: (" + astTokenList[astCurrentIndex].value + ") \n"  )
 	} else {
-		console.log("Stupid");
+		throw "Cannot Redeclare Identifier: (" + astTokenList[astCurrentIndex + 1].value + ")";
 	}
 	astMatch("Type");
 	parseASTId();
@@ -191,11 +187,6 @@ function parseASTIntExpr(){
 		ast.addNode(astTokenList[astCurrentIndex].value, "branch");
 		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf");
 		astCurrentIndex++; //astMatch("IntOp");
-		if(astNextToken() == "Digit" || sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Int"){
-			console.log("Okay")
-		} else {
-			console.log("NaN")
-		}
 		parseASTExpr();
 	} else if (astTokenList[astCurrentIndex - 1].kind == "Digit"){
 		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf");
@@ -224,7 +215,7 @@ function parseASTBooleanExpr(){
 
 function parseASTId(){
 	if(sa.checkTree(astTokenList[astCurrentIndex].value) == false){
-		console.log("No No")
+		throw "Undeclared Identifier: (" + astTokenList[astCurrentIndex].value + ")"; 
 	}
 	astMatch("Char");
 }

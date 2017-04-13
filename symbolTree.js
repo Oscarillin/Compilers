@@ -77,6 +77,7 @@ function symbolTree(){
                         traversalResult +=  "[ " + k + " | " + scope.ht.items[k] + " ] \n";
                     }
                 } 
+                traversalResult += "\n";
                 // .. recursively expand them.
                 for (var i = 0; i < scope.children.length; i++)
                 {
@@ -88,6 +89,18 @@ function symbolTree(){
         expand(this.root, 0);
         // Return the result.
         return traversalResult;
+    };
+
+    this.checkTree = function(key) {
+        var temp = this.cur;
+        while(this.cur.parent != null){
+            if(this.cur.ht.hasItem(key) == false){
+                this.cur = this.cur.parent;
+            } else {
+                return true;
+            }
+        } this.cur = temp;
+        return false;
     };
 
 }

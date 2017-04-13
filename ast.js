@@ -27,15 +27,14 @@ var currentScope;
 var scopeCount = -1;
 var sa;
 
-function runAst(input){
+function runAst(tokenStream){
 	if(astCurrentIndex == 0){
-		astTokenList = listState(input);
+		astTokenList = tokenStream;
 	}
 	ast = new Tree();
 	sa = new symbolTree();
 		try { 
 			parseASTProgram();
-			console.log(sa)
 		}
 		catch (e){
 			$('#astOutput').append(e);
@@ -44,6 +43,30 @@ function runAst(input){
 	// 	runAst(input);
 	// } 
 	//astCurrentIndex = 0;
+}
+
+function checkType(){
+	console.log(astTokenList[astCurrentIndex].kind)
+	console.log(astTokenList[astCurrentIndex - 2].kind)
+	if((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Int") || (astTokenList[astCurrentIndex].kind == "Digit")){
+		if((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Int") || (astTokenList[astCurrentIndex - 2].kind == "Digit")){
+			console.log("Int Compar Okay")
+		} else {
+			console.log("Not valid")
+		}
+	} else if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Boolean") || (astTokenList[astCurrentIndex].kind == "BoolVal")){
+		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Boolean") || (astTokenList[astCurrentIndex - 2].kind == "BoolVal")){
+			console.log("Bool Comp Okay")
+		} else {
+			console.log("Not valid")
+		}
+	} else if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "String") || (astTokenList[astCurrentIndex].kind == "Quote")){
+		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "String") || (astTokenList[astCurrentIndex - 2].kind == "Quote")){
+			console.log("Okay")
+		} else {
+			console.log("Not okay")
+		}
+	}
 }
 
 function astNextToken(){
@@ -71,6 +94,7 @@ function parseASTBlock(){
 	parseASTStatementList();
 	astCurrentIndex++; //astMatch("RBRACE");
 	ast.endChildren();
+	sa.kick();
 }
 
 function parseASTStatementList(){
@@ -113,12 +137,18 @@ function parseASTAssign(){
 	ast.addNode("Assign", "branch");
 	parseASTId();
 	astCurrentIndex++; //astMatch("Assign");
+	// console.log(astNextToken())
+	// console.log(sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value))
 	parseASTExpr();
 }
 
 function parseASTVarDecl(){
 	ast.addNode("VarDecl", "branch");
-	sa.cur.ht.setItem(astTokenList[astCurrentIndex + 1].value,astTokenList[astCurrentIndex].value)
+	if(!sa.cur.ht.hasItem(astTokenList[astCurrentIndex + 1].value)){
+		sa.cur.ht.setItem(astTokenList[astCurrentIndex + 1].value,astTokenList[astCurrentIndex].value);
+	} else {
+		console.log("Stupid");
+	}
 	astMatch("Type");
 	parseASTId();
 }
@@ -140,6 +170,10 @@ function parseASTIf(){
 }
 
 function parseASTExpr(){
+	console.log(astTokenList[astCurrentIndex - 1].kind)
+	if(astTokenList[astCurrentIndex - 1].kind == "IntOp" || astTokenList[astCurrentIndex - 1].kind == "Assign" || astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
+		checkType();
+	}
 	if(astNextToken() == "Digit"){
 		parseASTIntExpr();
 	} else if(astNextToken() == "Quote"){
@@ -155,10 +189,16 @@ function parseASTIntExpr(){
 	astCurrentIndex++;// astMatch("Digit");
 	if(astNextToken() == "IntOp"){
 		ast.addNode(astTokenList[astCurrentIndex].value, "branch");
-		console.log(ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf"))
-		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf")
+		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf");
 		astCurrentIndex++; //astMatch("IntOp");
+		if(astNextToken() == "Digit" || sa.cur.ht.getItem(astTokenList[astCurrentIndex].value) == "Int"){
+			console.log("Okay")
+		} else {
+			console.log("NaN")
+		}
 		parseASTExpr();
+	} else if (astTokenList[astCurrentIndex - 1].kind == "Digit"){
+		ast.addNode(astTokenList[astCurrentIndex - 1].value, "leaf");
 	}
 }
 
@@ -170,7 +210,7 @@ function parseASTStringExpr(){
 
 function parseASTBooleanExpr(){
 	if(astNextToken() == "LPAREN"){
-		ast.addNode(astTokenList[astCurrentIndex + 2].value, "branch")
+		ast.addNode(astTokenList[astCurrentIndex + 2].value, "branch");
 		astCurrentIndex++; //astMatch("LPAREN");
 		parseASTExpr();
 		astCurrentIndex++; //astMatch("BoolOp");
@@ -179,10 +219,13 @@ function parseASTBooleanExpr(){
 	} else if(astNextToken() == "BoolVal"){
 		astMatch("BoolVal");
 	}
-	ast.endChildren();
+	//ast.endChildren();
 }
 
 function parseASTId(){
+	if(sa.checkTree(astTokenList[astCurrentIndex].value) == false){
+		console.log("No No")
+	}
 	astMatch("Char");
 }
 

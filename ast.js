@@ -49,20 +49,32 @@ function checkType(){
 		if((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Int") || (astTokenList[astCurrentIndex - 2].kind == "Digit")){
 			document.getElementById("semanticOutput").append("Int Type Match Successful \n")
 		} else {
-			throw "Type Mismatch at line:"
+			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
 		}
 	} else if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
 		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Boolean") || (astTokenList[astCurrentIndex - 2].kind == "BoolVal")){
 			document.getElementById("semanticOutput").append("Bool Type Match Successful \n")
 		} else {
-			throw "Type Mismatch at line:"
+			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
 		}
 	} else if ((currentIDType == "String") || (currentType == "Quote")){
 		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "String") || (astTokenList[astCurrentIndex - 2].kind == "Quote")){
 			document.getElementById("semanticOutput").append("String Type Match Successful \n")
 		} else {
-			throw "Type Mismatch at line:"
+			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
 		}
+	}
+}
+
+function checkComp(){
+	if (astTokenList[astCurrentIndex - 1].kind == "IntOp"){
+		checkType();
+		document.getElementById("semanticOutput").append("Type Matched digit to digit on line: " + astTokenList[astCurrentIndex].lineNum + "\n");
+	} else if (astTokenList[astCurrentIndex - 1].kind == "Assign"){
+		checkType();
+		document.getElementById("semanticOutput").append("Assigned: " + astTokenList[astCurrentIndex].kind + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");
+	} else if (astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
+		checkType();
 	}
 }
 
@@ -166,10 +178,7 @@ function parseASTIf(){
 }
 
 function parseASTExpr(){
-	console.log(astTokenList[astCurrentIndex - 1].kind)
-	if(astTokenList[astCurrentIndex - 1].kind == "IntOp" || astTokenList[astCurrentIndex - 1].kind == "Assign" || astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
-		checkType();
-	}
+	checkComp();
 	if(astNextToken() == "Digit"){
 		parseASTIntExpr();
 	} else if(astNextToken() == "Quote"){

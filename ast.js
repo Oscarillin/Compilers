@@ -1,27 +1,13 @@
 //Oscar Reyes
 //AST Construction
 
-// {int a
-// a = 1
-// {
-// a = 2
-// print(a)
-// }
-// string b
-// b = "alan"
-// if (a == 1){
-// print(b)
-// }
-// string c
-// c = "james"
-// b = "blackstone"
-// print(b)
-// }
-
 
 var astCurrentIndex = 0;
 var astTokenList;
 var ast;
+
+var usedID = [];
+var initalizedID = [];
 
 var currentScope;
 var scopeCount = -1;
@@ -43,28 +29,65 @@ function runAst(tokenStream){
 }
 
 function checkType(){
-	var currentType = astTokenList[astCurrentIndex].kind
+	var currentType = astTokenList[astCurrentIndex].kind;
 	var currentIDType = sa.cur.ht.getItem(astTokenList[astCurrentIndex].value);
+	var previousType = astTokenList[astCurrentIndex - 2].kind;
+	var previousIDType = sa.getValue(astTokenList[astCurrentIndex - 2].value)
+	var typeA;
+	var typeB;
+
 	if((currentIDType == "Int") || (currentType == "Digit")){
-		if((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Int") || (astTokenList[astCurrentIndex - 2].kind == "Digit")){
-			document.getElementById("semanticOutput").append("Int Type Match Successful \n")
-		} else {
-			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-		}
-	} else if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
-		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "Boolean") || (astTokenList[astCurrentIndex - 2].kind == "BoolVal")){
-			document.getElementById("semanticOutput").append("Bool Type Match Successful \n")
-		} else {
-			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-		}
-	} else if ((currentIDType == "String") || (currentType == "Quote")){
-		if ((sa.cur.ht.getItem(astTokenList[astCurrentIndex - 2].value) == "String") || (astTokenList[astCurrentIndex - 2].kind == "Quote")){
-			document.getElementById("semanticOutput").append("String Type Match Successful \n")
-		} else {
-			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-		}
+		typeA = "Int"
+	}
+
+	if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
+		typeA = "Boolean"
+	}
+
+	if ((currentIDType == "String") || (currentType == "Quote")){
+		typeA = "String"
+	}
+
+	if((previousIDType == "Int") || (previousType == "Digit")){
+		typeB = "Int"
+	}
+
+	if((previousIDType == "Boolean") || (previousType == "BoolVal")){
+		typeB = "Boolean"
+	}
+
+	if((previousIDType == "String") || (previousType == "Quote")){
+		typeB = "String"
+	}
+
+	if(typeA == typeB){
+		document.getElementById("semanticOutput").append("Successfully matched " + typeA + " to " + typeB + ".\n" );
+	} else {
+		throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum + " Cannot match an " + typeA + " to " + typeB + ".\n";
 	}
 }
+
+
+// 	if((currentIDType == "Int") || (currentType == "Digit")){
+// 		if((previousIDType == "Int") || (previousType == "Digit")){
+// 			document.getElementById("semanticOutput").append("Int Type Match Successful \n")
+// 		} else {
+// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
+// 		}
+// 	} else if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
+// 		if ((previousIDType == "Boolean") || (previousType == "BoolVal")){
+// 			document.getElementById("semanticOutput").append("Bool Type Match Successful \n")
+// 		} else {
+// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
+// 		}
+// 	} else if ((currentIDType == "String") || (currentType == "Quote")){
+// 		if ((previousIDType == "String") || (previousType == "Quote")){
+// 			document.getElementById("semanticOutput").append("String Type Match Successful \n")
+// 		} else {
+// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
+// 		}
+// 	}
+// }
 
 function checkComp(){
 	if (astTokenList[astCurrentIndex - 1].kind == "IntOp"){
@@ -73,6 +96,8 @@ function checkComp(){
 	} else if (astTokenList[astCurrentIndex - 1].kind == "Assign"){
 		checkType();
 		document.getElementById("semanticOutput").append("Assigned: " + astTokenList[astCurrentIndex].kind + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");
+		initalizedID.push(astTokenList[astCurrentIndex - 2].value)
+		console.log(initalizedID)
 	} else if (astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
 		checkType();
 	}
@@ -223,6 +248,7 @@ function parseASTBooleanExpr(){
 }
 
 function parseASTId(){
+	console.log(sa.checkTree(astTokenList[astCurrentIndex].value))
 	if(sa.checkTree(astTokenList[astCurrentIndex].value) == false){
 		throw "Undeclared Identifier: (" + astTokenList[astCurrentIndex].value + ")"; 
 	}

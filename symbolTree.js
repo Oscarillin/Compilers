@@ -92,15 +92,25 @@ function symbolTree(){
     };
 
     this.checkTree = function(key) {
-        var temp = this.cur;
-        while(this.cur.parent != null){
-            if(this.cur.ht.hasItem(key) == false){
-                this.cur = this.cur.parent;
+        var pointer = this.cur;
+        while(pointer.parent != null){
+            if(pointer.ht.hasItem(key) == false){
+                pointer = pointer.parent;
             } else {
                 return true;
             }
-        } this.cur = temp;
-        return false;
+        } return false;
     };
 
+    this.getValue = function(key) {
+        var pointer = this.cur;
+        while(pointer.parent != null){
+            if(pointer.ht.hasItem(key) == false){
+                pointer = pointer.parent;
+            } else {
+                console.log(pointer.ht.getItem(key))
+                return pointer.ht.getItem(key);
+            }
+        } return "No"
+    }
 }

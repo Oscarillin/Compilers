@@ -67,28 +67,6 @@ function checkType(){
 	}
 }
 
-
-// 	if((currentIDType == "Int") || (currentType == "Digit")){
-// 		if((previousIDType == "Int") || (previousType == "Digit")){
-// 			document.getElementById("semanticOutput").append("Int Type Match Successful \n")
-// 		} else {
-// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-// 		}
-// 	} else if ((currentIDType == "Boolean") || (currentType == "BoolVal")){
-// 		if ((previousIDType == "Boolean") || (previousType == "BoolVal")){
-// 			document.getElementById("semanticOutput").append("Bool Type Match Successful \n")
-// 		} else {
-// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-// 		}
-// 	} else if ((currentIDType == "String") || (currentType == "Quote")){
-// 		if ((previousIDType == "String") || (previousType == "Quote")){
-// 			document.getElementById("semanticOutput").append("String Type Match Successful \n")
-// 		} else {
-// 			throw "Type Mismatch at line: " + astTokenList[astCurrentIndex].lineNum;
-// 		}
-// 	}
-// }
-
 function checkComp(){
 	if (astTokenList[astCurrentIndex - 1].kind == "IntOp"){
 		checkType();

@@ -4,10 +4,12 @@
 var currentIndex = 0;
 var tokenList;
 var cst;
+var programNumber = 1;
 
 function runCompiler(input){
 	$('#parseOutput').text("");
 	$('#lexOutput').text("");
+	$('#astOutput').text("");
 	run(input);
 }
 
@@ -19,10 +21,11 @@ function run(input){
 		try { 
 			parseProgram();
 			if(currentIndex < tokenList.length - 1){
+				programNumber++;
 				run(input);
 			} 
 			
-			runAst(input);
+			runAst(tokenList);
 		}
 		catch (e){
 			$('#parseOutput').append(e);
@@ -46,10 +49,11 @@ function match(expected){
 }
 
 function parseProgram(){
+	document.getElementById("parseOutput").append("Program Number: " + programNumber + "\n");
 	cst.addNode("Program", "branch");
 	parseBlock();
 	match("EOP");
-	document.getElementById("parseOutput").append(cst.toString());
+	document.getElementById("parseOutput").append(cst.toString() + "\n");
 }
 
 function parseBlock(){

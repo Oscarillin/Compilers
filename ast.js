@@ -13,7 +13,10 @@ var currentScope;
 var scopeCount = -1;
 var sa;
 
+var astNumber = 0;
+
 function runAst(tokenStream){
+	astNumber++;
 	if(astCurrentIndex == 0){
 		astTokenList = tokenStream;
 	}
@@ -26,6 +29,7 @@ function runAst(tokenStream){
 			$('#astOutput').append(e);
 		}	
 	astCurrentIndex = 0;
+	scopeCount = -1;
 }
 
 function checkType(){
@@ -91,9 +95,11 @@ function astMatch(expected){
 }
 
 function parseASTProgram(){
+	document.getElementById("astOutput").append("Program Number: " + astNumber + "\n");
+	document.getElementById("semanticOutput").append("Program Number: " + astNumber + "\n");
 	parseASTBlock();
 	astCurrentIndex++;
-	document.getElementById("astOutput").append(ast.toString());
+	document.getElementById("astOutput").append(ast.toString() + "\n");
 	document.getElementById("semanticOutput").append(sa.toString());
 }
 

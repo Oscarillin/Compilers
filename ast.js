@@ -24,6 +24,7 @@ function runAst(tokenStream){
 	sa = new symbolTree();
 		try { 
 			parseASTProgram();
+			genCode(ast, sa);
 		}
 		catch (e){
 			$('#astOutput').append(e);
@@ -90,7 +91,11 @@ function astNextToken(){
 }
 
 function astMatch(expected){
-		ast.addNode(astTokenList[astCurrentIndex].value, "leaf");
+		if(astTokenList[astCurrentIndex].kind == "Char" && astTokenList[astCurrentIndex + 1].kind != "Char" && astTokenList[astCurrentIndex + 1].kind != "Quote"){
+			ast.addNode(astTokenList[astCurrentIndex].value + "@" + scopeCount, "leaf");
+		} else {
+			ast.addNode(astTokenList[astCurrentIndex].value, "leaf");
+		}
 		astCurrentIndex++;
 }
 
@@ -106,7 +111,7 @@ function parseASTProgram(){
 function parseASTBlock(){
 	scopeCount++;
 	ast.addNode("Block", "branch")
-	sa.newScope("Scope " + scopeCount);
+	sa.newScope(scopeCount);
 	document.getElementById("semanticOutput").append("Entering Scope: " + scopeCount + "\n")
 	astCurrentIndex++; //astMatch("LBRACE");
 	parseASTStatementList();

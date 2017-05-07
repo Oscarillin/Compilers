@@ -8,7 +8,7 @@ var tempTable = [];
 function genCode(ast, symbolTree){
 	astTreePointer = ast;
 	symbolTreePointer = symbolTree;
-	console.log(traverseTree())
+	traverseSymbol();
 	document.getElementById("codeGenOutput").append(traverseAst() + "\n");
 
 }
@@ -55,8 +55,9 @@ function traverseAst() {
 function traverseSymbol() {
     // Initialize the result string.
     var traversalResult = "";
-    var temp;
-    var tempVar;
+    var tempNumber = 0;
+    var temp = "";
+	var tempVar = "";
 
     // Recursive function to handle the expansion of the scopes.
     function expand(scope, depth)
@@ -66,22 +67,33 @@ function traverseSymbol() {
         {
             // ... note the leaf scope.
             // traversalResult += "[" + scope.name + "\n";
-            // for (var k in scope.ht.items) {
-            //     if (scope.ht.hasItem(k)) {
-            //         traversalResult +=  "[ " + k + " | " + scope.ht.items[k] + " ] \n";
-            //     }
-            // }  
+            for (var k in scope.ht.items) {
+                if (scope.ht.hasItem(k)) {
+                	temp = k + "@" + scope.name;
+                	tempVar = "T" + tempNumber + " XX";
+                	tempNumber++;
+                	var tempPair = {};
+                	tempPair[temp] = tempVar;
+                	tempTable.push(tempPair);
+                }
+            }  
             // traversalResult += "\n";
         }
         else
         {
+
             // There are children, so note these interior/branch scopes and ...
             // traversalResult += "[" + scope.name + "\n";
-            // for (var k in scope.ht.items) {
-            //     if (scope.ht.hasItem(k)) {
-            //         traversalResult +=  "[ " + k + " | " + scope.ht.items[k] + " ] \n";
-            //     }
-            // } 
+            for (var k in scope.ht.items) {
+                if (scope.ht.hasItem(k)) {
+                	temp = k + "@" + scope.name;
+                	tempVar = "T" + tempNumber + " XX";
+                	tempNumber++;
+                	var tempPair = {};
+                	tempPair[temp] = tempVar;
+                	tempTable.push(tempPair);
+                }
+            } 
             // traversalResult += "\n";
             // .. recursively expand them.
 

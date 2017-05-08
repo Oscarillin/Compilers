@@ -25,6 +25,7 @@ function genCode(ast, symbolTree){
 	var nextSpot = withoutSpace.length/2 + 1;
 	var nextHex;
 	var changedCode;
+	fullStack = codeGen + heapStack;
 	var fullWithoutSpaces = fullStack.replace(/ /g,"");
 
 	if(fullWithoutSpaces.length/2 > 256){
@@ -42,7 +43,6 @@ function genCode(ast, symbolTree){
 		if(nextHex.length == 1){
 			nextHex = "0" + nextHex
 		}
-		console.log(tempPair[k])
 		var regEx = RegExp(tempPair[k][0],"g")
         changedCode = codeGen.replace(regEx, nextHex + " 00 ");
         nextSpot = nextSpot + 2;
@@ -101,7 +101,8 @@ function traverseAst() {
                 	if(node.children[0].name.length == 1){
                 		traversalResult += "AC 0" + node.children[0].name + " A2 01 FF "
                 	} else if(tempPair[node.children[0].name][1] == "Boolean"){
-
+                		console.log(heapTable[tempPair[node.children[0].name][2]])
+                		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	} else {
                 		traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
                 	}

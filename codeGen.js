@@ -13,14 +13,13 @@ function genCode(ast, symbolTree){
 	traverseSymbol();
 	codeGen = traverseAst();
 	var withoutSpace = codeGen.replace(/ /g,"");
-	nextSpot = withoutSpace.length/2 + 1;
+	var nextSpot = withoutSpace.length/2 + 1;
 	var nextHex;	
 	(console.log(nextSpot))
 	var changedCode = codeGen;
 	for (var k in tempPair) {
 		nextHex = nextSpot.toString(16);
-		console.log(nextHex.length)
-		if(nextHex.length = 1){
+		if(nextHex.length == 1){
 			nextHex = "0" + nextHex
 		}
 		var regEx = RegExp(tempPair[k],"g")
@@ -55,13 +54,22 @@ function traverseAst() {
 
                 if(node.name == "VarDecl"){
                 	if(node.children[0].name == "String"){
-                		//DO some stuff
+                		//Skip this part until initilization
                 	} else {
                     	traversalResult += "A9 00 8D " + tempPair[node.children[1].name] + "";                
                 	}
                 }
                 if(node.name == "Assign"){
-                    traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
+                	console.log(node.children[1].name)
+                	if(node.children[1].name.length == 1){
+                   		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
+                   	} else {
+                   		if(node.children[1].name == "False"){
+                    		traversalResult += "A9 00 8D " + tempPair[node.children[0].name] + "";               			
+                   		} else if(node.children[1].name == "True"){
+                   			traversalResult += "A9 01 8D " + tempPair[node.children[0].name] + ""; 
+                   		}
+                   	}                   
                 }
                 if(node.name == "Print"){
                 	console.log(node.children[0].name.length)

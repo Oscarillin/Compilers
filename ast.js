@@ -80,7 +80,6 @@ function checkComp(){
 		checkType();
 		document.getElementById("semanticOutput").append("Assigned: " + astTokenList[astCurrentIndex].kind + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");
 		initalizedID.push(astTokenList[astCurrentIndex - 2].value)
-		console.log(initalizedID)
 	} else if (astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
 		checkType();
 	}
@@ -91,8 +90,17 @@ function astNextToken(){
 }
 
 function astMatch(expected){
-		if(astTokenList[astCurrentIndex].kind == "Char" && astTokenList[astCurrentIndex + 1].kind != "Char" && astTokenList[astCurrentIndex + 1].kind != "Quote"){
-			ast.addNode(astTokenList[astCurrentIndex].value + "@" + scopeCount, "leaf");
+	var wholeString = "";
+		if(astTokenList[astCurrentIndex].kind == "Char"){// && astTokenList[astCurrentIndex + 1].kind != "Char" && astTokenList[astCurrentIndex + 1].kind != "Quote"){
+			if(astTokenList[astCurrentIndex - 1].kind == "Quote"){
+				while(astTokenList[astCurrentIndex + 1].kind != "Quote"){
+					wholeString += astTokenList[astCurrentIndex].value;
+					astCurrentIndex++;
+				} wholeString += astTokenList[astCurrentIndex].value
+				ast.addNode(wholeString, "leaf");
+			} else {
+				ast.addNode(astTokenList[astCurrentIndex].value + "@" + scopeCount, "leaf");
+			}
 		} else {
 			ast.addNode(astTokenList[astCurrentIndex].value, "leaf");
 		}
@@ -237,7 +245,6 @@ function parseASTBooleanExpr(){
 }
 
 function parseASTId(){
-	console.log(sa.checkTree(astTokenList[astCurrentIndex].value))
 	if(sa.checkTree(astTokenList[astCurrentIndex].value) == false){
 		throw "Undeclared Identifier: (" + astTokenList[astCurrentIndex].value + ")"; 
 	}

@@ -80,7 +80,7 @@ function traverseAst() {
                 	}
                 }
                 if(node.name == "Assign"){
-                	console.log(node.children[0].name)
+                	console.log(node.children)
                 	if(node.children[1].name.length == 1){
                    		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
                    	} else {
@@ -90,6 +90,16 @@ function traverseAst() {
                    		} else if(node.children[1].name == "True"){
                    			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
                    			traversalResult += "A9 01 8D " + tempPair[node.children[0].name][0] + ""; 
+                   		} else {
+                   			var stringPointer = node.children[1].name;
+                   			var hexString = "";
+                   			for(var i = 0; i < stringPointer.length; i++){
+                   				hexString += stringPointer.charCodeAt(i).toString(16) + " ";
+                   			} 
+                   			console.log(node.children)
+                   			traversalResult += "A9 " + stringPointer.charCodeAt(0).toString(16) + " 8D " + tempPair[node.children[0].name][0] ;
+                   			heapStack = hexString + " 00 " + heapStack
+                   			console.log(heapStack)
                    		}
                    	}                   
                 }

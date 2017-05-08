@@ -4,13 +4,17 @@
 var astTreePointer;
 var symbolTreePointer;
 var tempTable = [];
+var tempPair = {};
+var codeGen = "";
 
 function genCode(ast, symbolTree){
 	astTreePointer = ast;
 	symbolTreePointer = symbolTree;
 	traverseSymbol();
-	document.getElementById("codeGenOutput").append(traverseAst() + "\n");
-
+	codeGen = traverseAst();
+	withoutSpace = codeGen.replace(/ /g,"");
+	console.log(withoutSpace.length)
+	document.getElementById("codeGenOutput").append(codeGen + "\n");
 }
 
 
@@ -33,11 +37,19 @@ function traverseAst() {
                 // .. recursively expand them.
 
                 if(node.name == "VarDecl"){
-                    traversalResult += "A9 00 8D T0 XX "
+                	if(node.children[0].name == "String"){
+                		//DO some stuff
+                	} else {
+                    	traversalResult += "A9 00 8D " + tempPair[node.children[1].name] + "";                
+                	}
                 }
-
                 if(node.name == "Assign"){
-                    traversalResult += "A9 01 8D T0 XX "
+                	console.log(node.children)
+                    traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
+                }
+                if(node.name == "Print"){
+                	console.log(node.children)
+                	traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
                 }
 
                 for (var i = 0; i < node.children.length; i++)
@@ -70,9 +82,8 @@ function traverseSymbol() {
             for (var k in scope.ht.items) {
                 if (scope.ht.hasItem(k)) {
                 	temp = k + "@" + scope.name;
-                	tempVar = "T" + tempNumber + " XX";
+                	tempVar = "T" + tempNumber + " XX ";
                 	tempNumber++;
-                	var tempPair = {};
                 	tempPair[temp] = tempVar;
                 	tempTable.push(tempPair);
                 }
@@ -89,7 +100,6 @@ function traverseSymbol() {
                 	temp = k + "@" + scope.name;
                 	tempVar = "T" + tempNumber + " XX";
                 	tempNumber++;
-                	var tempPair = {};
                 	tempPair[temp] = tempVar;
                 	tempTable.push(tempPair);
                 }

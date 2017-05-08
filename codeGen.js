@@ -12,8 +12,25 @@ function genCode(ast, symbolTree){
 	symbolTreePointer = symbolTree;
 	traverseSymbol();
 	codeGen = traverseAst();
-	withoutSpace = codeGen.replace(/ /g,"");
-	console.log(withoutSpace.length)
+	var withoutSpace = codeGen.replace(/ /g,"");
+	nextSpot = withoutSpace.length/2 + 1;
+	var nextHex;	
+	(console.log(nextSpot))
+	var changedCode = codeGen;
+	for (var k in tempPair) {
+		nextHex = nextSpot.toString(16);
+		console.log(nextHex.length)
+		if(nextHex.length = 1){
+			nextHex = "0" + nextHex
+		}
+		var regEx = RegExp(tempPair[k],"g")
+        changedCode = changedCode.replace(regEx, nextHex + " 00 ");
+        console.log(changedCode)
+        nextSpot = nextSpot + 2;
+            
+    }
+    console.log(changedCode)
+    codeGen = changedCode;
 	document.getElementById("codeGenOutput").append(codeGen + "\n");
 }
 
@@ -44,12 +61,15 @@ function traverseAst() {
                 	}
                 }
                 if(node.name == "Assign"){
-                	console.log(node.children)
                     traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
                 }
                 if(node.name == "Print"){
-                	console.log(node.children)
-                	traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
+                	console.log(node.children[0].name.length)
+                	if(node.children[0].name.length == 1){
+                		traversalResult += "AC 0" + node.children[0].name + " A2 01 FF "
+                	} else {
+                		traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
+                	}
                 }
 
                 for (var i = 0; i < node.children.length; i++)
@@ -61,6 +81,7 @@ function traverseAst() {
         // Make the initial call to expand from the root.
         expand(astTreePointer.root, 0);
         // Return the result.
+        traversalResult += "00 "
         return traversalResult;
 }
 

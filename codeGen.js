@@ -4,33 +4,52 @@
 var astTreePointer;
 var symbolTreePointer;
 var tempTable = [];
+var heapTable = {};
+var heapStack = "66 61 6C 73 65 00 74 72 75 65 00";
 var tempPair = {};
 var codeGen = "";
+var fullStack = "";
+var zeros = "";
+var tempNumber = 0;
+var temp = "";
+var tempVar = "";
 
 function genCode(ast, symbolTree){
 	astTreePointer = ast;
 	symbolTreePointer = symbolTree;
 	traverseSymbol();
+	heapTable["True"] = 251;
+	heapTable["False"] = 245;
 	codeGen = traverseAst();
 	var withoutSpace = codeGen.replace(/ /g,"");
 	var nextSpot = withoutSpace.length/2 + 1;
-	var nextHex;	
-	(console.log(nextSpot))
-	var changedCode = codeGen;
+	var nextHex;
+	var changedCode;
+	var fullWithoutSpaces = fullStack.replace(/ /g,"");
+
+	if(fullWithoutSpaces.length/2 > 256){
+		//throw error
+	} else {
+		var zeroCount = 256 - fullWithoutSpaces.length/2;
+		console.log(zeroCount)
+		 while(zeroCount > 0){
+		 	zeros += "00 "
+		 	zeroCount--;
+		}
+	}
 	for (var k in tempPair) {
 		nextHex = nextSpot.toString(16);
 		if(nextHex.length == 1){
 			nextHex = "0" + nextHex
 		}
-		var regEx = RegExp(tempPair[k],"g")
-        changedCode = changedCode.replace(regEx, nextHex + " 00 ");
-        console.log(changedCode)
+		console.log(tempPair[k])
+		var regEx = RegExp(tempPair[k][0],"g")
+        changedCode = codeGen.replace(regEx, nextHex + " 00 ");
         nextSpot = nextSpot + 2;
-            
+        codeGen = changedCode;       
     }
-    console.log(changedCode)
-    codeGen = changedCode;
-	document.getElementById("codeGenOutput").append(codeGen + "\n");
+    fullStack = codeGen + zeros + heapStack;
+	document.getElementById("codeGenOutput").append(fullStack + "\n");
 }
 
 
@@ -56,25 +75,33 @@ function traverseAst() {
                 	if(node.children[0].name == "String"){
                 		//Skip this part until initilization
                 	} else {
-                    	traversalResult += "A9 00 8D " + tempPair[node.children[1].name] + "";                
+                		console.log(tempPair[node.children[1].name])
+                    	traversalResult += "A9 00 8D " + tempPair[node.children[1].name][0] + "";                
                 	}
                 }
                 if(node.name == "Assign"){
-                	console.log(node.children[1].name)
+                	console.log(node.children[0].name)
                 	if(node.children[1].name.length == 1){
                    		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
                    	} else {
                    		if(node.children[1].name == "False"){
-                    		traversalResult += "A9 00 8D " + tempPair[node.children[0].name] + "";               			
+                   			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
+                    		traversalResult += "A9 00 8D " + tempPair[node.children[0].name][0] + "";               			
                    		} else if(node.children[1].name == "True"){
-                   			traversalResult += "A9 01 8D " + tempPair[node.children[0].name] + ""; 
+                   			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
+                   			traversalResult += "A9 01 8D " + tempPair[node.children[0].name][0] + ""; 
                    		}
                    	}                   
                 }
+                if(node.name == "While"){
+                	console.log(node.children)
+                }
+
                 if(node.name == "Print"){
-                	console.log(node.children[0].name.length)
                 	if(node.children[0].name.length == 1){
                 		traversalResult += "AC 0" + node.children[0].name + " A2 01 FF "
+                	} else if(tempPair[node.children[0].name][1] == "Boolean"){
+
                 	} else {
                 		traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
                 	}
@@ -96,9 +123,6 @@ function traverseAst() {
 function traverseSymbol() {
     // Initialize the result string.
     var traversalResult = "";
-    var tempNumber = 0;
-    var temp = "";
-	var tempVar = "";
 
     // Recursive function to handle the expansion of the scopes.
     function expand(scope, depth)
@@ -113,7 +137,7 @@ function traverseSymbol() {
                 	temp = k + "@" + scope.name;
                 	tempVar = "T" + tempNumber + " XX ";
                 	tempNumber++;
-                	tempPair[temp] = tempVar;
+                	tempPair[temp] = [tempVar,scope.ht.getItem(k)];
                 	tempTable.push(tempPair);
                 }
             }  

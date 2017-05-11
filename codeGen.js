@@ -80,9 +80,9 @@ function traverseAst() {
                 	}
                 }
                 if(node.name == "Assign"){
-                	console.log(node.children)
+                	console.log(node.children[1].name.length)
                 	if(node.children[1].name.length == 1){
-                   		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name] +  "";
+                   		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name][0] +  "";
                    	} else {
                    		if(node.children[1].name == "False"){
                    			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
@@ -108,13 +108,14 @@ function traverseAst() {
                 }
 
                 if(node.name == "Print"){
+                	console.log(tempPair[node.children[0].name][0])
                 	if(node.children[0].name.length == 1){
-                		traversalResult += "AC 0" + node.children[0].name + " A2 01 FF "
+                		traversalResult += "AC " + tempPair[node.children[0].name][0] + " A2 01 FF "
                 	} else if(tempPair[node.children[0].name][1] == "Boolean"){
                 		console.log(heapTable[tempPair[node.children[0].name][2]])
                 		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	} else {
-                		traversalResult += "AC " + tempPair[node.children[0].name] + "A2 01 FF ";
+                		traversalResult += "AC " + tempPair[node.children[0].name][0] + "A2 01 FF ";
                 	}
                 }
 
@@ -164,7 +165,7 @@ function traverseSymbol() {
                 	temp = k + "@" + scope.name;
                 	tempVar = "T" + tempNumber + " XX";
                 	tempNumber++;
-                	tempPair[temp] = tempVar;
+					tempPair[temp] = [tempVar,scope.ht.getItem(k)];
                 	tempTable.push(tempPair);
                 }
             } 

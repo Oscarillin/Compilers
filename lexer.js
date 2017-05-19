@@ -323,7 +323,7 @@ function createToken(buffer){
 			break;
 		case 46:
 			kind = "IntOp";
-			value = "PLUS";
+			value = "Add";
 			lineNum = lineNumber;
 			break;
 		case 49:

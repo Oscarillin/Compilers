@@ -60,7 +60,7 @@ function symbolTree(){
             if (!scope.children || scope.children.length === 0)
             {
                 // ... note the leaf scope.
-                traversalResult += "[" + scope.name + "\n";
+                traversalResult += "[ Scope " + scope.name + "\n";
                 for (var k in scope.ht.items) {
                     if (scope.ht.hasItem(k)) {
                         traversalResult +=  "[ " + k + " | " + scope.ht.items[k] + " ] \n";
@@ -71,7 +71,7 @@ function symbolTree(){
             else
             {
                 // There are children, so note these interior/branch scopes and ...
-                traversalResult += "[" + scope.name + "\n";
+                traversalResult += "[ Scope " + scope.name + "\n";
                 for (var k in scope.ht.items) {
                     if (scope.ht.hasItem(k)) {
                         traversalResult +=  "[ " + k + " | " + scope.ht.items[k] + " ] \n";

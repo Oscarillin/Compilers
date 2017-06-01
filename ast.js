@@ -78,7 +78,11 @@ function checkComp(){
 		document.getElementById("semanticOutput").append("Type Matched digit to digit on line: " + astTokenList[astCurrentIndex].lineNum + "\n");
 	} else if (astTokenList[astCurrentIndex - 1].kind == "Assign"){
 		checkType();
-		document.getElementById("semanticOutput").append("Assigned: " + astTokenList[astCurrentIndex].kind + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");
+		if(astTokenList[astCurrentIndex].value == '"'){
+			document.getElementById("semanticOutput").append("Asigned: " + astTokenList[astCurrentIndex + 1].value + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");
+		} else {
+			document.getElementById("semanticOutput").append("Asigned: " + astTokenList[astCurrentIndex].value + " to id " + astTokenList[astCurrentIndex - 2].value + " at line " + astTokenList[astCurrentIndex].lineNum + "\n");			
+		}
 		initalizedID.push(astTokenList[astCurrentIndex - 2].value)
 	} else if (astTokenList[astCurrentIndex - 1].kind == "BoolOp"){
 		checkType();

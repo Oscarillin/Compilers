@@ -13,6 +13,7 @@ var zeros = "";
 var tempNumber = 0;
 var temp = "";
 var tempVar = "";
+var heapPosition = 245;
 
 function genCode(ast, symbolTree){
 	astTreePointer = ast;
@@ -95,8 +96,11 @@ function traverseAst() {
                    			var hexString = "";
                    			for(var i = 0; i < stringPointer.length; i++){
                    				hexString += stringPointer.charCodeAt(i).toString(16) + " ";
-                   			} 
-                   			console.log(node.children)
+                   			}
+                   			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
+                   			heapPosition = heapPosition - stringPointer.length + 1;
+                   			heapTable[stringPointer] = heapPosition;
+                   			console.log(heapTable)
                    			traversalResult += "A9 " + stringPointer.charCodeAt(0).toString(16) + " 8D " + tempPair[node.children[0].name][0] ;
                    			heapStack = hexString + " 00 " + heapStack
                    			console.log(heapStack)
@@ -108,14 +112,17 @@ function traverseAst() {
                 }
 
                 if(node.name == "Print"){
-                	console.log(tempPair[node.children[0].name][0])
-                	if(node.children[0].name.length == 1){
+                	console.log(heapTable)
+                	console.log(tempPair[node.children[0].name][1])
+                	if(tempPair[node.children[0].name][1] == "Int"){
                 		traversalResult += "AC " + tempPair[node.children[0].name][0] + " A2 01 FF "
                 	} else if(tempPair[node.children[0].name][1] == "Boolean"){
+                		console.log(tempPair[node.children[0].name])
                 		console.log(heapTable[tempPair[node.children[0].name][2]])
                 		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	} else {
-                		traversalResult += "AC " + tempPair[node.children[0].name][0] + "A2 01 FF ";
+                		console.log(tempPair[node.children[0].name])
+                		traversalResult += "AC " + heapTable[tempPair[node.children[0].name][2]].toString(16) + "A2 01 FF ";
                 	}
                 }
 

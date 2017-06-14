@@ -14,6 +14,7 @@ var tempNumber = 0;
 var temp = "";
 var tempVar = "";
 var heapPosition = 245;
+var heapCount = 2;
 
 function genCode(ast, symbolTree){
 	astTreePointer = ast;
@@ -23,7 +24,7 @@ function genCode(ast, symbolTree){
 	heapTable["False"] = 245;
 	codeGen = traverseAst();
 	var withoutSpace = codeGen.replace(/ /g,"");
-	var nextSpot = withoutSpace.length/2 + 1;
+	var nextSpot = withoutSpace.length/2;
 	var nextHex;
 	var changedCode;
 	fullStack = codeGen + heapStack;
@@ -33,7 +34,6 @@ function genCode(ast, symbolTree){
 		//throw error
 	} else {
 		var zeroCount = 256 - fullWithoutSpaces.length/2;
-		console.log(zeroCount)
 		 while(zeroCount > 0){
 		 	zeros += "00 "
 		 	zeroCount--;
@@ -41,10 +41,13 @@ function genCode(ast, symbolTree){
 	}
 	for (var k in tempPair) {
 		nextHex = nextSpot.toString(16);
+		console.log(nextSpot)
+		console.log(nextHex)
 		if(nextHex.length == 1){
 			nextHex = "0" + nextHex
 		}
 		var regEx = RegExp(tempPair[k][0],"g")
+		console.log(regEx)
         changedCode = codeGen.replace(regEx, nextHex + " 00 ");
         nextSpot = nextSpot + 2;
         codeGen = changedCode;       
@@ -76,12 +79,10 @@ function traverseAst() {
                 	if(node.children[0].name == "String"){
                 		//Skip this part until initilization
                 	} else {
-                		console.log(tempPair[node.children[1].name])
                     	traversalResult += "A9 00 8D " + tempPair[node.children[1].name][0] + "";                
                 	}
                 }
                 if(node.name == "Assign"){
-                	console.log(node.children[1].name.length)
                 	if(node.children[1].name.length == 1){
                    		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name][0] +  "";
                    	} else {
@@ -100,10 +101,8 @@ function traverseAst() {
                    			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
                    			heapPosition = heapPosition - stringPointer.length + 1;
                    			heapTable[stringPointer] = heapPosition;
-                   			console.log(heapTable)
-                   			traversalResult += "A9 " + stringPointer.charCodeAt(0).toString(16) + " 8D " + tempPair[node.children[0].name][0] ;
+                   			traversalResult += "A9 " + heapTable[stringPointer].toString(16) + " 8D " + tempPair[node.children[0].name][0];
                    			heapStack = hexString + " 00 " + heapStack
-                   			console.log(heapStack)
                    		}
                    	}                   
                 }
@@ -112,17 +111,12 @@ function traverseAst() {
                 }
 
                 if(node.name == "Print"){
-                	console.log(heapTable)
-                	console.log(tempPair[node.children[0].name][1])
                 	if(tempPair[node.children[0].name][1] == "Int"){
                 		traversalResult += "AC " + tempPair[node.children[0].name][0] + " A2 01 FF "
                 	} else if(tempPair[node.children[0].name][1] == "Boolean"){
-                		console.log(tempPair[node.children[0].name])
-                		console.log(heapTable[tempPair[node.children[0].name][2]])
                 		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	} else {
-                		console.log(tempPair[node.children[0].name])
-                		traversalResult += "AC " + heapTable[tempPair[node.children[0].name][2]].toString(16) + "A2 01 FF ";
+                		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	}
                 }
 

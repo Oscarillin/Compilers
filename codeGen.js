@@ -83,7 +83,7 @@ function traverseAst() {
                 	}
                 }
                 if(node.name == "Assign"){
-                	if(node.children[1].name.length == 1){
+                	if(tempPair[node.children[0].name][1] == "Int"){
                    		traversalResult += "A9 0" + node.children[1].name +" 8D " + tempPair[node.children[0].name][0] +  "";
                    	} else {
                    		if(node.children[1].name == "False"){
@@ -100,7 +100,7 @@ function traverseAst() {
                    			}
                    			tempPair[node.children[0].name] = [tempPair[node.children[0].name][0],tempPair[node.children[0].name][1],node.children[1].name]
                    			heapPosition = heapPosition - stringPointer.length + 1;
-                   			heapTable[stringPointer] = heapPosition;
+                   			heapTable[stringPointer] = heapPosition - 2;
                    			traversalResult += "A9 " + heapTable[stringPointer].toString(16) + " 8D " + tempPair[node.children[0].name][0];
                    			heapStack = hexString + " 00 " + heapStack
                    		}
@@ -116,7 +116,7 @@ function traverseAst() {
                 	} else if(tempPair[node.children[0].name][1] == "Boolean"){
                 		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
                 	} else {
-                		traversalResult += "A0 " + heapTable[tempPair[node.children[0].name][2]].toString(16) + " A2 02 FF ";
+                		traversalResult += "AC " + tempPair[node.children[0].name][0] + " A2 02 FF ";
                 	}
                 }
 

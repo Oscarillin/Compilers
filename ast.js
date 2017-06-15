@@ -95,7 +95,7 @@ function astNextToken(){
 
 function astMatch(expected){
 	var wholeString = "";
-		if(astTokenList[astCurrentIndex].kind == "Char"){// && astTokenList[astCurrentIndex + 1].kind != "Char" && astTokenList[astCurrentIndex + 1].kind != "Quote"){
+		if(astTokenList[astCurrentIndex].kind == "Char"){
 			if(astTokenList[astCurrentIndex - 1].kind == "Quote"){
 				while(astTokenList[astCurrentIndex + 1].kind != "Quote"){
 					wholeString += astTokenList[astCurrentIndex].value;
@@ -249,6 +249,7 @@ function parseASTBooleanExpr(){
 }
 
 function parseASTId(){
+	console.log(astTokenList[astCurrentIndex].value)
 	if(sa.checkTree(astTokenList[astCurrentIndex].value) == false){
 		throw "Undeclared Identifier: (" + astTokenList[astCurrentIndex].value + ")"; 
 	}
